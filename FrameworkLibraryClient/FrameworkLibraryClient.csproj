@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Framework.cs" />
     <Compile Include="FrameworkConfig.cs" />
+    <Compile Include="Interval.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
