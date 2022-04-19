@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace FrameworkLibraryServer
             }
             else
             {
-                Msg("AutoDetect is disabled and " + (config.Framework == "None" ? "no " : (frameworks.Contains(config.Framework) ? "" : "unsupported ")) + "Framework " + config.Framework + " is selected.");
+                Msg("AutoDetect is disabled and " + (config.Framework == "None" ? "no " : (frameworks.Contains(config.Framework) ? "" : "unsupported ")) + "Framework " + (config.Framework == "None" ? "" : config.Framework) + " is selected.");
                 if (!frameworks.Contains(config.Framework))
                 {
                     config.Framework = "None";
@@ -116,6 +117,9 @@ namespace FrameworkLibraryServer
                     break;
                 case "QBCore":
                     framework = Exports["qb-core"].GetCoreObject();
+                    break;
+                case "None":
+                    framework = new ExpandoObject();
                     break;
             }
             if (framework == null)
