@@ -167,7 +167,13 @@ namespace FrameworkLibraryClient
             }
         }
 
-        
+        public void AddKeys(string plate)
+        {
+            if (config.Framework == "QBCore")
+            {
+                TriggerEvent("qb-vehiclekeys:client:AddKeys", plate);
+            }
+        }
 
     }
 }

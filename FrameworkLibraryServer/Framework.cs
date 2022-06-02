@@ -181,7 +181,7 @@ namespace FrameworkLibraryServer
             }
         }
 
-        public void RemovePlayerWalletMoney(Player source, int amount, string useCase)
+        public void RemovePlayerWalletMoney(Player source, int amount)
         {
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
