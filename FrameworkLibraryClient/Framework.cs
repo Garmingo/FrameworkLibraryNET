@@ -102,7 +102,7 @@ namespace FrameworkLibraryClient
 
                 }
 
-                await Delay(50);
+                await Delay(500);
             }
         }
 
@@ -123,6 +123,8 @@ namespace FrameworkLibraryClient
                         jobName = framework.Functions.GetPlayerData().job
                             .name;
                         break;
+                    case "None":
+                        return true;
                 }
 
                 return jobName != null;
