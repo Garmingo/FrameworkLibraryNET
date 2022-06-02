@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CitizenFX.Core;
 using Newtonsoft.Json;
 using static CitizenFX.Core.Native.API;
@@ -135,7 +133,7 @@ namespace FrameworkLibraryServer
                 return framework.GetPlayerFromId(source.Handle).GetMoney();
             } else if (config.Framework == "QBCore")
             {
-                return framework.Functions.GetPlayer(source.Handle).money;
+                return framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money["cash"];
             }
             else
             {
@@ -143,7 +141,23 @@ namespace FrameworkLibraryServer
             }
         }
 
-        public void AddPlayerWalletMoney(Player source, int amount, string useCase)
+        public int GetPlayerAccountMoney(Player source, string account)
+        {
+            if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
+            {
+                return framework.GetPlayerFromId(source.Handle).GetAccountMoney(account);
+            }
+            else if (config.Framework == "QBCore")
+            {
+                return framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money[account];
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public void AddPlayerWalletMoney(Player source, int amount)
         {
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
@@ -151,11 +165,11 @@ namespace FrameworkLibraryServer
             }
             else if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(source.Handle).AddMoney("cash", amount, useCase);
+                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddMoney("cash", amount);
             }
         }
 
-        public void AddPlayerAccountMoney(Player source, int amount, string account, string useCase)
+        public void AddPlayerAccountMoney(Player source, int amount, string account)
         {
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
@@ -163,7 +177,7 @@ namespace FrameworkLibraryServer
             }
             else if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(source.Handle).AddMoney(account, amount, useCase);
+                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddMoney(account, amount);
             }
         }
 
@@ -175,11 +189,11 @@ namespace FrameworkLibraryServer
             }
             else if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(source.Handle).RemoveMoney("cash", amount, useCase);
+                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveMoney("cash", amount);
             }
         }
 
-        public void RemovePlayerAccountMoney(Player source, int amount, string account, string useCase)
+        public void RemovePlayerAccountMoney(Player source, int amount, string account)
         {
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
@@ -187,7 +201,7 @@ namespace FrameworkLibraryServer
             }
             else if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(source.Handle).RemoveMoney(account, amount, useCase);
+                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveMoney(account, amount);
             }
         }
 
@@ -199,7 +213,7 @@ namespace FrameworkLibraryServer
             }
             else if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(source.Handle).AddItem(item, amount);
+                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddItem(item, amount);
             }
         }
     }
