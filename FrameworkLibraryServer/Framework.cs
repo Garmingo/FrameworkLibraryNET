@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 using CitizenFX.Core;
 using Newtonsoft.Json;
 using static CitizenFX.Core.Native.API;
@@ -133,7 +134,17 @@ namespace FrameworkLibraryServer
                 return framework.GetPlayerFromId(source.Handle).GetMoney();
             } else if (config.Framework == "QBCore")
             {
-                return framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money["cash"];
+                int amount;
+                try
+                {
+                    amount = framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money["cash"];
+                }
+                catch (Exception e)
+                {
+                    Msg("Unusual money storage detected. Trying fallback method...");
+                    amount = framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money.cash;
+                }
+                return amount;
             }
             else
             {
@@ -149,7 +160,18 @@ namespace FrameworkLibraryServer
             }
             else if (config.Framework == "QBCore")
             {
-                return framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money[account];
+                int amount;
+                try
+                {
+                    amount = framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money[account];
+                }
+                catch (Exception e)
+                {
+                    Msg("Unusual money storage detected. Trying fallback method...");
+                    amount = Extension.GetPropertyValue(
+                        framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money, account);
+                }
+                return amount;
             }
             else
             {
