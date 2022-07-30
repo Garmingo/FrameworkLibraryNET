@@ -129,10 +129,15 @@ namespace FrameworkLibraryServer
 
         public int GetPlayerWalletMoney(Player source)
         {
-            if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
+            if (config.Framework == "ESX Infinity")
             {
                 return framework.GetPlayerFromId(source.Handle).GetMoney();
-            } else if (config.Framework == "QBCore")
+            } else if (config.Framework == "ESX Legacy")
+            {
+                return framework.GetPlayerFromId(source.Handle).getMoney();
+
+            }
+            else if (config.Framework == "QBCore")
             {
                 int amount;
                 try
@@ -154,9 +159,13 @@ namespace FrameworkLibraryServer
 
         public int GetPlayerAccountMoney(Player source, string account)
         {
-            if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
+            if (config.Framework == "ESX Infinity")
             {
                 return framework.GetPlayerFromId(source.Handle).GetAccountMoney(account);
+            }
+            else if (config.Framework == "ESX Legacy")
+            {
+                return framework.GetPlayerFromId(source.Handle).GetAccount(account).money || framework.GetPlayerFromId(source.Handle).getAccount(account).money;
             }
             else if (config.Framework == "QBCore")
             {
