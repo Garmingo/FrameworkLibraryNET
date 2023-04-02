@@ -131,10 +131,10 @@ namespace FrameworkLibraryServer
         {
             if (config.Framework == "ESX Infinity")
             {
-                return framework.GetPlayerFromId(source.Handle).GetMoney();
+                return (int) framework.GetPlayerFromId(source.Handle).GetMoney();
             } else if (config.Framework == "ESX Legacy")
             {
-                return framework.GetPlayerFromId(source.Handle).getMoney();
+                return (int) framework.GetPlayerFromId(source.Handle).getMoney();
 
             }
             else if (config.Framework == "QBCore")
@@ -142,12 +142,12 @@ namespace FrameworkLibraryServer
                 int amount;
                 try
                 {
-                    amount = framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money["cash"];
+                    amount = (int) framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money["cash"];
                 }
                 catch (Exception e)
                 {
                     Msg("Unusual money storage detected. Trying fallback method...");
-                    amount = framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money.cash;
+                    amount = (int) framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money.cash;
                 }
                 return amount;
             }
@@ -161,23 +161,23 @@ namespace FrameworkLibraryServer
         {
             if (config.Framework == "ESX Infinity")
             {
-                return framework.GetPlayerFromId(source.Handle).GetAccountMoney(account);
+                return (int) framework.GetPlayerFromId(source.Handle).GetAccountMoney(account);
             }
             else if (config.Framework == "ESX Legacy")
             {
-                return framework.GetPlayerFromId(source.Handle).GetAccount(account).money || framework.GetPlayerFromId(source.Handle).getAccount(account).money;
+                return (int) (framework.GetPlayerFromId(source.Handle).getAccount(account).money || framework.GetPlayerFromId(source.Handle).GetAccount(account).money);
             }
             else if (config.Framework == "QBCore")
             {
                 int amount;
                 try
                 {
-                    amount = framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money[account];
+                    amount = (int) framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money[account];
                 }
                 catch (Exception e)
                 {
                     Msg("Unusual money storage detected. Trying fallback method...");
-                    amount = Extension.GetPropertyValue(
+                    amount = (int) Extension.GetPropertyValue(
                         framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money, account);
                 }
                 return amount;
