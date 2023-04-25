@@ -71,7 +71,7 @@ namespace FrameworkLibraryClient
                             framework = Exports["qb-core"].GetCoreObject();
                             break;
                         case "Custom":
-                            framework = new { };
+                            framework = new ExpandoObject();
                             break;
                     }
 
