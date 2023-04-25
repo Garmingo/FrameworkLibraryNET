@@ -15,7 +15,7 @@ namespace FrameworkLibraryClient
         public FrameworkConfig config =
             JsonConvert.DeserializeObject<FrameworkConfig>(LoadResourceFile(GetCurrentResourceName(), "framework.json"));
 
-        private string[] frameworks = new string[] {"None", "ESX Legacy", "ESX Infinity", "QBCore"};
+        private string[] frameworks = new string[] {"None", "ESX Legacy", "ESX Infinity", "QBCore", "Custom"};
         private dynamic framework;
 
         public Framework()

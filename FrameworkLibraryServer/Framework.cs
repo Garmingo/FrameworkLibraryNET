@@ -14,7 +14,7 @@ namespace FrameworkLibraryServer
         public FrameworkConfig config =
             JsonConvert.DeserializeObject<FrameworkConfig>(LoadResourceFile(GetCurrentResourceName(), "framework.json"));
 
-        private string[] frameworks = new string[] {"None", "ESX Legacy", "ESX Infinity", "QBCore"};
+        private string[] frameworks = new string[] {"None", "ESX Legacy", "ESX Infinity", "QBCore", "Custom"};
         private dynamic framework;
         public Framework()
         {
@@ -44,28 +44,7 @@ namespace FrameworkLibraryServer
         {
             try
             {
-                TriggerEvent(config.ESXEvent, new object[]
-                {
-                    new Action<dynamic>(esx =>
-                    {
-                        try
-                        {
-                            var pl = esx.GetPlayers();
-                            if (pl != null)
-                            {
-                                Msg("Detected ESX Infinity.");
-                                config.Framework = "ESX Infinity";
-                                config.AutoDetect = false;
-                                SaveResourceFile(GetCurrentResourceName(), "framework.json",
-                                    JsonConvert.SerializeObject(config), -1);
-                            }
-                        }
-                        catch (Exception ignored)
-                        {
-
-                        }
-                    })
-                });
+                
                 if (Exports["qb-core"].GetCoreObject() != null)
                 {
                     Msg("Detected QBCore.");
@@ -81,6 +60,31 @@ namespace FrameworkLibraryServer
                     config.AutoDetect = false;
                     SaveResourceFile(GetCurrentResourceName(), "framework.json", JsonConvert.SerializeObject(config),
                         -1);
+                }
+                else
+                {
+                    TriggerEvent(config.ESXEvent, new object[]
+                    {
+                        new Action<dynamic>(esx =>
+                        {
+                            try
+                            {
+                                var pl = esx.GetPlayers();
+                                if (pl != null)
+                                {
+                                    Msg("Detected ESX Infinity.");
+                                    config.Framework = "ESX Infinity";
+                                    config.AutoDetect = false;
+                                    SaveResourceFile(GetCurrentResourceName(), "framework.json",
+                                        JsonConvert.SerializeObject(config), -1);
+                                }
+                            }
+                            catch (Exception ignored)
+                            {
+
+                            }
+                        })
+                    });
                 }
 
                 if (!config.AutoDetect)
@@ -165,7 +169,7 @@ namespace FrameworkLibraryServer
             }
             else if (config.Framework == "ESX Legacy")
             {
-                return (int) (framework.GetPlayerFromId(source.Handle).getAccount(account).money || framework.GetPlayerFromId(source.Handle).GetAccount(account).money);
+                return (int) (framework.GetPlayerFromId(source.Handle).getAccount(account).money ?? framework.GetPlayerFromId(source.Handle).GetAccount(account).money);
             }
             else if (config.Framework == "QBCore")
             {
