@@ -181,6 +181,33 @@ namespace FrameworkLibraryClient
             }
         }
 
+        public int GetInventoryItemCount(string item)
+        {
+            if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
+            {
+                foreach (var i in framework.GetPlayerData().inventory)
+                {
+                    if (i.name == item)
+                    {
+                        return i.count;
+                    }
+                }
+                return 0;
+            }
+            else if (config.Framework == "QBCore")
+            {
+                return framework.Functions.GetPlayerData().Functions.GetItemsByName(item).amount;
+            }
+            else if (config.Framework == "Custom")
+            {
+                return Exports[config.ExportResource].GetInventoryItemCount(item);
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
         public void AddKeys(string plate)
         {
             if (config.Framework == "QBCore")
