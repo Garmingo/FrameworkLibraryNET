@@ -70,6 +70,9 @@ namespace FrameworkLibraryClient
                         case "QBCore":
                             framework = Exports["qb-core"].GetCoreObject();
                             break;
+                        case "Custom":
+                            framework = new { };
+                            break;
                     }
 
 
@@ -88,6 +91,9 @@ namespace FrameworkLibraryClient
                             case "QBCore":
                                 jobName = framework.Functions.GetPlayerData().job
                                     .name;
+                                break;
+                            case "Custom":
+                                jobName = Exports[config.ExportResource].GetPlayerJobName();
                                 break;
                         }
                         finished = jobName != null;
@@ -145,6 +151,10 @@ namespace FrameworkLibraryClient
             {
                 return framework.Functions.GetPlayerData().job.name;
             }
+            else if (config.Framework == "Custom")
+            {
+                return Exports[config.ExportResource].GetPlayerJobName();
+            }
             else
             {
                 return "";
@@ -160,6 +170,10 @@ namespace FrameworkLibraryClient
             else if (config.Framework == "QBCore")
             {
                 return framework.Functions.GetPlayerData().job.grade;
+            }
+            else if (config.Framework == "Custom")
+            {
+                return Exports[config.ExportResource].GetPlayerJobGrade();
             }
             else
             {

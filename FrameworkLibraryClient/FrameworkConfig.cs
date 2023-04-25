@@ -10,5 +10,6 @@ namespace FrameworkLibraryClient
     {
         public string Framework { get; set; }
         public string ESXEvent { get; set; }
+        public string ExportResource { get; set; }
     }
 }
