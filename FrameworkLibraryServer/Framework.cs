@@ -298,5 +298,22 @@ namespace FrameworkLibraryServer
                 Exports[config.ExportResource].RemovePlayerInventoryItem(source.Handle, item, amount);
             }
         }
+        public int GetPlayerInventoryItemCount(Player source, string item)
+        {
+            if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
+            {
+                return framework.GetPlayerFromId(source.Handle).getInventoryItem(item).count;
+            }
+            else if (config.Framework == "QBCore")
+            {
+                return framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.GetItemsByName(item).amount;
+            }
+            else if (config.Framework == "Custom")
+            {
+                return Exports[config.ExportResource].GetPlayerInventoryItemCount(source.Handle, item);
+            }
+
+            return 0;
+        }
     }
 }
