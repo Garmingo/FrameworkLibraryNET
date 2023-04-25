@@ -37,9 +37,9 @@
 
     /*
      * Below are the settings for using a custom framework. If you are not using a custom framework you do not have to change anything.
-     * How to use: Create exports for the given functionality and enter the export name here. You will find information on the export parameters and their exact function on our docs page: TO BE ENTERED
+     * How to use: Create exports for the given functionality and enter the export name here. You will find information on the export parameters and their exact function on our docs page: https://docs.codineerdigital.com/purchase-and-installation/frameworks#setting-up-a-custom-framework
      * You can learn more about FiveM exports here: JavaScript: https://docs.fivem.net/docs/scripting-reference/runtimes/javascript/functions/exports/
      * Please note that we offer no support for implementing your custom framework!
      */
-    "ExportResource": "CustomFramework" 
+    "ExportResource": "CustomFramework"
 }
