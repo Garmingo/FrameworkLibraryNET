@@ -11,5 +11,7 @@ namespace FrameworkLibraryServer
         public bool AutoDetect { get; set; }
         public string Framework { get; set; }
         public string ESXEvent { get; set; }
+        public string ExportResource { get; set; }
+
     }
 }

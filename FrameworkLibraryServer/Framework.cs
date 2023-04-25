@@ -121,6 +121,9 @@ namespace FrameworkLibraryServer
                 case "QBCore":
                     framework = Exports["qb-core"].GetCoreObject();
                     break;
+                case "Custom":
+                    framework = new ExpandoObject();
+                    break;
                 case "None":
                     framework = new ExpandoObject();
                     break;
@@ -140,6 +143,10 @@ namespace FrameworkLibraryServer
             {
                 return (int) framework.GetPlayerFromId(source.Handle).getMoney();
 
+            }
+            else if (config.Framework == "Custom")
+            {
+                return (int) Exports[config.ExportResource].GetPlayerWalletMoney(source.Handle);
             }
             else if (config.Framework == "QBCore")
             {
@@ -170,6 +177,10 @@ namespace FrameworkLibraryServer
             else if (config.Framework == "ESX Legacy")
             {
                 return (int) (framework.GetPlayerFromId(source.Handle).getAccount(account).money ?? framework.GetPlayerFromId(source.Handle).GetAccount(account).money);
+            }
+            else if (config.Framework == "Custom")
+            {
+                return (int)Exports[config.ExportResource].GetPlayerAccountMoney(source.Handle, account);
             }
             else if (config.Framework == "QBCore")
             {
@@ -202,6 +213,10 @@ namespace FrameworkLibraryServer
             {
                 framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddMoney("cash", amount);
             }
+            else if (config.Framework == "Custom")
+            {
+                Exports[config.ExportResource].AddPlayerWalletMoney(source.Handle, amount);
+            }
         }
 
         public void AddPlayerAccountMoney(Player source, int amount, string account)
@@ -213,6 +228,10 @@ namespace FrameworkLibraryServer
             else if (config.Framework == "QBCore")
             {
                 framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddMoney(account, amount);
+            }
+            else if (config.Framework == "Custom")
+            {
+                Exports[config.ExportResource].AddPlayerAccountMoney(source.Handle, amount, account);
             }
         }
 
@@ -226,6 +245,10 @@ namespace FrameworkLibraryServer
             {
                 framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveMoney("cash", amount);
             }
+            else if (config.Framework == "Custom")
+            {
+                Exports[config.ExportResource].RemovePlayerWalletMoney(source.Handle, amount);
+            }
         }
 
         public void RemovePlayerAccountMoney(Player source, int amount, string account)
@@ -238,6 +261,10 @@ namespace FrameworkLibraryServer
             {
                 framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveMoney(account, amount);
             }
+            else if (config.Framework == "Custom")
+            {
+                Exports[config.ExportResource].RemovePlayerAccountMoney(source.Handle, amount, account);
+            }
         }
 
         public void AddPlayerInventoryItem(Player source, string item, int amount)
@@ -249,6 +276,26 @@ namespace FrameworkLibraryServer
             else if (config.Framework == "QBCore")
             {
                 framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddItem(item, amount);
+            }
+            else if (config.Framework == "Custom")
+            {
+                Exports[config.ExportResource].AddPlayerInventoryItem(source.Handle, item, amount);
+            }
+        }
+
+        public void RemovePlayerInventoryItem(Player source, string item, int amount)
+        {
+            if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
+            {
+                framework.GetPlayerFromId(source.Handle).removeInventoryItem(item, amount);
+            }
+            else if (config.Framework == "QBCore")
+            {
+                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveItem(item, amount);
+            }
+            else if (config.Framework == "Custom")
+            {
+                Exports[config.ExportResource].RemovePlayerInventoryItem(source.Handle, item, amount);
             }
         }
     }
