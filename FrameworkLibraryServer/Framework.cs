@@ -104,6 +104,16 @@ namespace FrameworkLibraryServer
             Debug.WriteLine("[" + GetCurrentResourceName() + "] Framework Detection: " + message);
         }
 
+        public static bool PropertyExists(dynamic obj, string name)
+        {
+            if (obj == null) return false;
+            if (obj is IDictionary<string, object> dict)
+            {
+                return dict.ContainsKey(name);
+            }
+            return obj.GetType().GetProperty(name) != null;
+        }
+
         private void InitializeFramework()
         {
             switch (config.Framework)
@@ -138,19 +148,31 @@ namespace FrameworkLibraryServer
         {
             if (config.Framework == "ESX Infinity")
             {
-                return (int) framework.GetPlayerFromId(source.Handle).GetMoney();
-            } else if (config.Framework == "ESX Legacy")
-            {
-                return (int) framework.GetPlayerFromId(source.Handle).getMoney();
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "GetMoney"))
+                {
+                    return (int)framework.GetPlayerFromId(source.Handle).GetMoney();
+                }
+            }
 
-            }
-            else if (config.Framework == "Custom")
+            if (config.Framework == "ESX Legacy")
             {
-                return (int) Exports[config.ExportResource].GetPlayerWalletMoney(source.Handle);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "getMoney"))
+                {
+                    return (int)framework.GetPlayerFromId(source.Handle).getMoney();
+                }
             }
-            else if (config.Framework == "QBCore")
+            
+            if (config.Framework == "Custom")
             {
-                int amount;
+                if (PropertyExists(Exports[config.ExportResource], "GetPlayerWalletMoney"))
+                {
+                    return (int)Exports[config.ExportResource].GetPlayerWalletMoney(source.Handle);
+                }
+            }
+            
+            if (config.Framework == "QBCore")
+            {
+                int amount = 0;
                 try
                 {
                     amount = (int) framework.Functions.GetPlayer(int.Parse(source.Handle)).PlayerData.money["cash"];
@@ -162,27 +184,48 @@ namespace FrameworkLibraryServer
                 }
                 return amount;
             }
-            else
-            {
-                return 0;
-            }
+
+            Msg("Could not find suitable Wallet Money implementation. Returning 0.");
+            return 0;
         }
 
         public int GetPlayerAccountMoney(Player source, string account)
         {
             if (config.Framework == "ESX Infinity")
             {
-                return (int) framework.GetPlayerFromId(source.Handle).GetAccountMoney(account);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "GetAccountMoney"))
+                {
+                    return (int) framework.GetPlayerFromId(source.Handle).GetAccountMoney(account);
+                }
+
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "accounts"))
+                {
+                    return (int)((List<dynamic>)framework.GetPlayerFromId(source.Handle).accounts).Where(acc => acc.name == account).ToArray()[0].money;
+                }
             }
-            else if (config.Framework == "ESX Legacy")
+            
+            if (config.Framework == "ESX Legacy")
             {
-                return (int) (framework.GetPlayerFromId(source.Handle).getAccount(account).money ?? framework.GetPlayerFromId(source.Handle).GetAccount(account).money);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "getAccount"))
+                {
+                    return (int) framework.GetPlayerFromId(source.Handle).getAccount(account).money;
+                }
+
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "GetAccount"))
+                {
+                    return (int)framework.GetPlayerFromId(source.Handle).GetAccount(account).money;
+                }
             }
-            else if (config.Framework == "Custom")
+            
+            if (config.Framework == "Custom")
             {
-                return (int)Exports[config.ExportResource].GetPlayerAccountMoney(source.Handle, account);
+                if (PropertyExists(Exports[config.ExportResource], "GetPlayerAccountMoney"))
+                {
+                    return (int)Exports[config.ExportResource].GetPlayerAccountMoney(source.Handle, account);
+                }
             }
-            else if (config.Framework == "QBCore")
+            
+            if (config.Framework == "QBCore")
             {
                 int amount;
                 try
@@ -197,122 +240,274 @@ namespace FrameworkLibraryServer
                 }
                 return amount;
             }
-            else
-            {
-                return 0;
-            }
+
+            Msg("Could not find suitable Account Money implementation. Returning 0.");
+            return 0;
         }
 
         public void AddPlayerWalletMoney(Player source, int amount)
         {
+            if (amount < 1)
+            {
+                Msg("Invalid amount passed to AddPlayerWalletMoney. Aborting.");
+                return;
+            }
+
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
-                framework.GetPlayerFromId(source.Handle).addMoney(amount);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "addMoney"))
+                {
+                    framework.GetPlayerFromId(source.Handle).addMoney(amount);
+                    return;
+                }
             }
-            else if (config.Framework == "QBCore")
+
+            if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddMoney("cash", amount);
+                if (PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)), "Functions") && PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions, "AddMoney"))
+                {
+                    framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddMoney("cash", amount);
+                    return;
+                }
             }
-            else if (config.Framework == "Custom")
+
+            if (config.Framework == "Custom")
             {
-                Exports[config.ExportResource].AddPlayerWalletMoney(source.Handle, amount);
+                if (PropertyExists(Exports[config.ExportResource], "AddPlayerWalletMoney"))
+                {
+                    Exports[config.ExportResource].AddPlayerWalletMoney(source.Handle, amount);
+                    return;
+                }
             }
+
+            Msg("Could not find suitable AddPlayerWalletMoney implementation. No money has been added.");
         }
 
         public void AddPlayerAccountMoney(Player source, int amount, string account)
         {
+            if (amount < 1)
+            {
+                Msg("Invalid amount passed to AddPlayerAccountMoney. Aborting.");
+                return;
+            }
+
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
-                framework.GetPlayerFromId(source.Handle).addAccountMoney(account, amount);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "addAccountMoney"))
+                {
+                    framework.GetPlayerFromId(source.Handle).addAccountMoney(account, amount);
+                    return;
+                }
             }
-            else if (config.Framework == "QBCore")
+
+            if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddMoney(account, amount);
+                if (PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)), "Functions") &&
+                    PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions, "AddMoney"))
+                {
+                    framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddMoney(account, amount);
+                    return;
+                }
             }
-            else if (config.Framework == "Custom")
+
+            if (config.Framework == "Custom")
             {
-                Exports[config.ExportResource].AddPlayerAccountMoney(source.Handle, amount, account);
+                if (PropertyExists(Exports[config.ExportResource], "AddPlayerAccountMoney"))
+                {
+                    Exports[config.ExportResource].AddPlayerAccountMoney(source.Handle, amount, account);
+                    return;
+                }
             }
+
+            Msg("Could not find suitable AddPlayerAccountMoney implementation. No money has been added.");
         }
 
         public void RemovePlayerWalletMoney(Player source, int amount)
         {
+            if (amount < 1)
+            {
+                Msg("Invalid amount passed to RemovePlayerWalletMoney. Aborting.");
+                return;
+            }
+
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
-                framework.GetPlayerFromId(source.Handle).removeMoney(amount);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "removeMoney"))
+                {
+                    framework.GetPlayerFromId(source.Handle).removeMoney(amount);
+                    return;
+                }
             }
-            else if (config.Framework == "QBCore")
+            
+            if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveMoney("cash", amount);
+                if (PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)), "Functions") &&
+                    PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions, "RemoveMoney"))
+                {
+                    framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveMoney("cash", amount);
+                    return;
+                }
             }
-            else if (config.Framework == "Custom")
+            
+            if (config.Framework == "Custom")
             {
-                Exports[config.ExportResource].RemovePlayerWalletMoney(source.Handle, amount);
+                if (PropertyExists(Exports[config.ExportResource], "RemovePlayerWalletMoney"))
+                {
+                    Exports[config.ExportResource].RemovePlayerWalletMoney(source.Handle, amount);
+                    return;
+                }
             }
+
+            Msg("Could not find suitable RemovePlayerWalletMoney implementation. No money has been removed.");
         }
 
         public void RemovePlayerAccountMoney(Player source, int amount, string account)
         {
+            if (amount < 1)
+            {
+                Msg("Invalid amount passed to RemovePlayerAccountMoney. Aborting.");
+                return;
+            }
+
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
-                framework.GetPlayerFromId(source.Handle).removeAccountMoney(account, amount);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "removeAccountMoney"))
+                {
+                    framework.GetPlayerFromId(source.Handle).removeAccountMoney(account, amount);
+                    return;
+                }
             }
-            else if (config.Framework == "QBCore")
+            
+            if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveMoney(account, amount);
+                if (PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)), "Functions") &&
+                    PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions, "RemoveMoney"))
+                {
+                    framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveMoney(account, amount);
+                    return;
+                }
             }
-            else if (config.Framework == "Custom")
+            
+            if (config.Framework == "Custom")
             {
-                Exports[config.ExportResource].RemovePlayerAccountMoney(source.Handle, amount, account);
+                if (PropertyExists(Exports[config.ExportResource], "RemovePlayerAccountMoney"))
+                {
+                    Exports[config.ExportResource].RemovePlayerAccountMoney(source.Handle, amount, account);
+                    return;
+                }
             }
+
+            Msg("Could not find suitable RemovePlayerAccountMoney implementation. No money has been removed.");
         }
 
         public void AddPlayerInventoryItem(Player source, string item, int amount)
         {
+            if (amount < 1)
+            {
+                Msg("Invalid amount passed to AddPlayerInventoryItem. Aborting.");
+                return;
+            }
+
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
-                framework.GetPlayerFromId(source.Handle).addInventoryItem(item, amount);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "addInventoryItem"))
+                {
+                    framework.GetPlayerFromId(source.Handle).addInventoryItem(item, amount);
+                    return;
+                }
             }
-            else if (config.Framework == "QBCore")
+            
+            if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddItem(item, amount);
+                if (PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)), "Functions") &&
+                    PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions, "AddItem"))
+                {
+                    framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.AddItem(item, amount);
+                    return;
+                }
             }
-            else if (config.Framework == "Custom")
+            
+            if (config.Framework == "Custom")
             {
-                Exports[config.ExportResource].AddPlayerInventoryItem(source.Handle, item, amount);
+                if (PropertyExists(Exports[config.ExportResource], "AddPlayerInventoryItem"))
+                {
+                    Exports[config.ExportResource].AddPlayerInventoryItem(source.Handle, item, amount);
+                    return;
+                }
             }
+
+            Msg("Could not find suitable AddPlayerInventoryItem implementation. No item has been added.");
         }
 
         public void RemovePlayerInventoryItem(Player source, string item, int amount)
         {
+            if (amount < 1)
+            {
+                Msg("Invalid amount passed to RemovePlayerInventoryItem. Aborting.");
+                return;
+            }
+
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
-                framework.GetPlayerFromId(source.Handle).removeInventoryItem(item, amount);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "removeInventoryItem"))
+                {
+                    framework.GetPlayerFromId(source.Handle).removeInventoryItem(item, amount);
+                    return;
+                }
             }
-            else if (config.Framework == "QBCore")
+            
+            if (config.Framework == "QBCore")
             {
-                framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveItem(item, amount);
+                if (PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)), "Functions") &&
+                    PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions, "RemoveItem"))
+                {
+                    framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.RemoveItem(item, amount);
+                    return;
+                }
             }
-            else if (config.Framework == "Custom")
+            
+            if (config.Framework == "Custom")
             {
-                Exports[config.ExportResource].RemovePlayerInventoryItem(source.Handle, item, amount);
+                if (PropertyExists(Exports[config.ExportResource], "RemovePlayerInventoryItem"))
+                {
+                    Exports[config.ExportResource].RemovePlayerInventoryItem(source.Handle, item, amount);
+                    return;
+                }
             }
+
+            Msg("Could not find suitable RemovePlayerInventoryItem implementation. No item has been removed.");
         }
+
+
         public int GetPlayerInventoryItemCount(Player source, string item)
         {
             if (config.Framework == "ESX Legacy" || config.Framework == "ESX Infinity")
             {
-                return framework.GetPlayerFromId(source.Handle).getInventoryItem(item).count;
-            }
-            else if (config.Framework == "QBCore")
-            {
-                return framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.GetItemsByName(item).amount;
-            }
-            else if (config.Framework == "Custom")
-            {
-                return Exports[config.ExportResource].GetPlayerInventoryItemCount(source.Handle, item);
+                if (PropertyExists(framework.GetPlayerFromId(source.Handle), "getInventoryItem"))
+                {
+                    return framework.GetPlayerFromId(source.Handle).getInventoryItem(item).count;
+                }
             }
 
+            if (config.Framework == "QBCore")
+            {
+                if (PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)), "Functions") &&
+                    PropertyExists(framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions, "GetItemsByName"))
+                {
+                    return framework.Functions.GetPlayer(int.Parse(source.Handle)).Functions.GetItemsByName(item)
+                        .amount;
+                }
+            }
+
+            if (config.Framework == "Custom")
+            {
+                if (PropertyExists(Exports[config.ExportResource], "GetPlayerInventoryItemCount"))
+                {
+                    return Exports[config.ExportResource].GetPlayerInventoryItemCount(source.Handle, item);
+                }
+            }
+
+            Msg("Could not find suitable GetPlayerInventoryItemCount implementation. Returning 0.");
             return 0;
         }
     }
