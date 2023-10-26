@@ -144,6 +144,11 @@ namespace FrameworkLibraryServer
             }
         }
 
+        public dynamic GetRawFramework()
+        {
+            return framework;
+        }
+
         public int GetPlayerWalletMoney(Player source)
         {
             if (config.Framework == "ESX Infinity")
