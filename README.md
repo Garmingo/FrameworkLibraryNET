@@ -1,7 +1,11 @@
 # FiveM Framework Library (.NET implementation)
 This library allows you to easily interact with the servers framework, without writing the same code over and over again for each framework.
 
-## Installation
+## Supported Frameworks
+ * ESX Legacy
+ * ESX Infinity
+ * QBCore
+ * Custom implementations
 
 ## Usage (Server)
 ```typescript
