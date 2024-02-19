@@ -169,7 +169,7 @@ namespace FrameworkLibraryClient
             }
             else if (config.Framework == "QBCore")
             {
-                return framework.Functions.GetPlayerData().job.grade;
+                return framework.Functions.GetPlayerData().job.grade is int ? framework.Functions.GetPlayerData().job.grade : framework.Functions.GetPlayerData().job.grade.level;
             }
             else if (config.Framework == "Custom")
             {
