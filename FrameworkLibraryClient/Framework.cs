@@ -29,17 +29,7 @@ namespace FrameworkLibraryClient
             {
                 if (config.Framework != "None")
                 {
-                    if (config.Framework == "ESX Legacy")
-                    {
-                        EventHandlers["esx:playerLoaded"] += new Action<ExpandoObject>((playerData) =>
-                        {
-                            InitializeFramework();
-                        });
-                    }
-                    else
-                    {
-                        InitializeFramework();
-                    }
+                    InitializeFramework();
                 }
             }
         }
@@ -52,6 +42,7 @@ namespace FrameworkLibraryClient
 
         private async void InitializeFramework()
         {
+            Msg("Starting initialization for Framework " + config.Framework);
             bool finished = false;
             while (!finished)
             {
@@ -77,39 +68,36 @@ namespace FrameworkLibraryClient
 
 
 
-                    try
+                    string jobName = null;
+                    switch (config.Framework)
                     {
-                        string jobName = null;
-                        switch (config.Framework)
-                        {
-                            case "ESX Legacy":
-                                jobName = framework.GetPlayerData().job.name;
-                                break;
-                            case "ESX Infinity":
-                                jobName = framework.GetPlayerData().job.name;
-                                break;
-                            case "QBCore":
-                                jobName = framework.Functions.GetPlayerData().job
-                                    .name;
-                                break;
-                            case "Custom":
-                                jobName = Exports[config.ExportResource].GetPlayerJobName();
-                                break;
-                        }
-                        finished = jobName != null;
+                        case "ESX Legacy":
+                            jobName = framework.GetPlayerData().job.name;
+                            break;
+                        case "ESX Infinity":
+                            jobName = framework.GetPlayerData().job.name;
+                            break;
+                        case "QBCore":
+                            jobName = framework.Functions.GetPlayerData().job
+                                .name;
+                            break;
+                        case "Custom":
+                            jobName = Exports[config.ExportResource].GetPlayerJobName();
+                            break;
                     }
-                    catch (Exception)
-                    {
-                        Msg("Waiting for initialization of selected framework " + config.Framework);
-                    }
+
+                    finished = jobName != null;
+
                 }
                 catch (Exception)
                 {
 
                 }
 
-                await Delay(500);
+                await Delay(1000);
             }
+
+            Msg("Finished initialization for Framework " + config.Framework);
         }
 
         public bool IsInitialized()
