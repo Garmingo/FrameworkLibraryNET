@@ -12,4 +12,5 @@ namespace FrameworkLibraryClient
         public string ESXEvent { get; set; }
         public string ExportResource { get; set; }
         public bool ShowDebugInfo { get; set; }
+    }
 }
