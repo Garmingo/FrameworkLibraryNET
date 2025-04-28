@@ -37,7 +37,10 @@ namespace FrameworkLibraryClient
 
         private void Msg(string message)
         {
-            Debug.WriteLine("[" + GetCurrentResourceName() + "] Framework Detection: " + message);
+            if (config.ShowDebugInfo)
+            {
+                Debug.WriteLine("[" + GetCurrentResourceName() + "] Framework Detection: " + message);
+            }
         }
 
         private async void InitializeFramework()

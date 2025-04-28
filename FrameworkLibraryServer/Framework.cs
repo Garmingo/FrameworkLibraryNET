@@ -101,7 +101,10 @@ namespace FrameworkLibraryServer
 
         private void Msg(string message)
         {
-            Debug.WriteLine("[" + GetCurrentResourceName() + "] Framework Detection: " + message);
+            if (config.ShowDebugInfo)
+            {
+                Debug.WriteLine("[" + GetCurrentResourceName() + "] Framework Detection: " + message);
+            }
         }
 
         public static bool PropertyExists(dynamic obj, string name)
