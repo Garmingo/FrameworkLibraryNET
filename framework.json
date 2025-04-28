@@ -17,6 +17,12 @@
   ],
   "AutoDetect": true,
 
+  "_ShowDebugInfo": [
+    "If enabled, the resource will show debug information in the server and client console.",
+    "If disabled, only errors will be shown."
+  ],
+  "ShowDebugInfo": true,
+
   "_FrameworkOptions": [
     "This option specifies which framework to use.",
     "To select a framework enter its name as defined below (NOT THE NUMBER).",
